@@ -1,15 +1,40 @@
 import React, { useContext } from "react";
-
+// import { useNavigate } from "react-router-dom";
 import AppContext from "../../../context/AppContext";
+import axios from "axios";
+import { error, success } from "../../../helpers/Alert";
 
 const StudentResult = () => {
-  const { resultsByStudent } = useContext(AppContext);
+  const { resultsByStudent, getResultsByStudent } = useContext(AppContext);
   // console.log(
   //   "🚀 ~ file: StudentResult.jsx:7 ~ StudentResult ~ resultsByStudent:",
   //   resultsByStudent
   // );
 
   let sn = 1;
+
+  const base_url = process.env.REACT_APP_BASE_URL;
+  // const navigate = useNavigate();
+
+  const deleteHandler = async (id) => {
+    try {
+      // console.log("TEST ID!!!!!!!: ", id);
+      const response = await axios.delete(`${base_url}/tests/delete?id=${id}`, {
+        headers: { "content-type": "application/json" },
+      });
+      // console.log("DELETED TEST!!!!!!: ", response);
+      if (response.status === 200) {
+        success("Deleted test successfully");
+        getResultsByStudent();
+        // navigate("/admin/students");
+        // goBack();
+      }
+    } catch (err) {
+      console.log(err);
+      error(err.response.data.error);
+      error(err.response.data.message);
+    }
+  };
 
   return (
     <div className="w-[70%] shadow-lg bg-white p-8 flex flex-col gap-4 rounded-lg">
@@ -25,6 +50,7 @@ const StudentResult = () => {
               <th className="w-[4rem]">S/N</th>
               <th>Course</th>
               <th>Score</th>
+              <th></th>
             </tr>
           </thead>
           <div className="my-4"></div>
@@ -34,14 +60,20 @@ const StudentResult = () => {
               <>
                 {resultsByStudent.map((item, i) => (
                   <>
-                    <tr key={i} className=" h-12 bg-teal-400/20">
+                    <tr key={i} className=" h-12 bg-teal-400/20 text-black">
                       <td>{sn++}</td>
                       <td>{item.courseTitle}</td>
                       <td>
                         {item.correctAnswers} 0f {item.totalQuestions}
                       </td>
+                      <td
+                        className="text-lg text-black font-bold cursor-pointer hover:text-red-400"
+                        onClick={() => deleteHandler(item._id)}
+                      >
+                        x
+                      </td>
                     </tr>
-                    <div className="mb-5"></div>
+                    <div className="mb-5">x</div>
                   </>
                 ))}
               </>
